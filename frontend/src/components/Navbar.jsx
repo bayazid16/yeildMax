@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { farmsApi } from "../api";
 import {
   LayoutDashboard,
   Map,
@@ -37,8 +38,9 @@ export function Navbar() {
 
   const checkHealth = () => {
     setHealthStatus("checking");
-    fetch("/api/health/")
-      .then((r) => (r.ok ? setHealthStatus("ok") : setHealthStatus("down")))
+    farmsApi
+      .health()
+      .then(() => setHealthStatus("ok"))
       .catch(() => setHealthStatus("down"));
   };
 

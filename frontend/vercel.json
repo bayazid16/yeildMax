@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/farm-map", "destination": "/index.html" },
+    { "source": "/soil-weather", "destination": "/index.html" },
+    { "source": "/satellite-ndvi", "destination": "/index.html" },
+    { "source": "/crop-suitability", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

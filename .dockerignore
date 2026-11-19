@@ -1,0 +1,43 @@
+# Git metadata
+.git
+.gitignore
+.gitattributes
+
+# Secrets / local environment (they are injected at runtime, never baked in)
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+id_rsa*
+
+# Dependencies and build output (rebuilt inside the image)
+**/node_modules
+**/dist
+**/build
+**/.vite
+**/*.tsbuildinfo
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/*.egg-info
+
+# Local tooling / backups / docs not needed in the image
+frontend_agent_backup
+docs
+.vscode
+.idea
+.vercel
+*.log
+.DS_Store
+Thumbs.db
+
+# Docker files themselves (the Dockerfile is read by the daemon)
+docker-compose*.yml
+README.md
+DEPLOYMENT.md

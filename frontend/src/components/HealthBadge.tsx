@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { farmsApi } from "../api";
 
 export function HealthBadge({ showLabel = true }: { showLabel?: boolean }) {
   const [status, setStatus] = useState<"ok" | "down" | "checking">("checking");
@@ -7,14 +8,11 @@ export function HealthBadge({ showLabel = true }: { showLabel?: boolean }) {
   const checkHealth = () => {
     setStatus("checking");
     const start = performance.now();
-    fetch("/api/health/")
-      .then((r) => {
-        if (r.ok) {
-          setStatus("ok");
-          setLatency(Math.round(performance.now() - start));
-        } else {
-          setStatus("down");
-        }
+    farmsApi
+      .health()
+      .then(() => {
+        setStatus("ok");
+        setLatency(Math.round(performance.now() - start));
       })
       .catch(() => setStatus("down"));
   };

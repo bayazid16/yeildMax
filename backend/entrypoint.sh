@@ -120,6 +120,25 @@ for gd in guidelines_data:
 print('Seeding completed.')
 "
 
-# -- Start the Django development server --
+# -- Collect static files for the single-container image --
+if [ "${YIELDMAX_MULTI_PROCESS:-0}" = "1" ]; then
+    echo "Collecting static files..."
+    python manage.py collectstatic --noinput >/dev/null
+fi
+
+# -- Start the requested process --
+# An explicit command (for example the Celery worker) always takes precedence.
+if [ "$#" -gt 0 ]; then
+    echo "Starting command: $*"
+    exec "$@"
+fi
+
+# -- Single-container image: Django + Nginx under supervisord --
+if [ "${YIELDMAX_MULTI_PROCESS:-0}" = "1" ]; then
+    echo "Starting Django + Nginx with supervisord..."
+    exec supervisord -c /etc/supervisor/supervisord.conf -n
+fi
+
+# -- Default: Django development server --
 echo "Starting Django server..."
-python manage.py runserver 0.0.0.0:8000
+exec python manage.py runserver 0.0.0.0:8000

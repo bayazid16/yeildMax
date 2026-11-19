@@ -22,16 +22,16 @@ load_dotenv(BASE_DIR.parent / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# Values are read from the environment so Docker/deployment platforms can
-# override them; the defaults preserve local development behaviour.
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    'django-insecure-+1pe*olh+ez8d*&(_z-(d)5_u993tuz4mz_gwg%d0($',
-)
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "1").strip().lower() in {"1", "true", "yes", "on"}
+
+# SECURITY WARNING: keep the secret key secret. It is read from the environment
+# only (see .env.example); nothing sensitive is stored in source control.
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is required. Copy .env.example to .env and set a long random value."
+    )
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -73,9 +73,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS settings - allow all origins in dev; tighten in prod
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+# CORS settings - allow all origins by default for local/dev use.
+# For a separate Vercel frontend, set CORS_ALLOWED_ORIGINS to the deployed
+# frontend origin (comma separated) and CORS_ALLOW_ALL_ORIGINS=0 in production.
+CORS_ALLOW_ALL_ORIGINS = os.environ.get(
+    "CORS_ALLOW_ALL_ORIGINS", "1"
+).strip().lower() in {"1", "true", "yes", "on"}
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+CORS_ALLOW_CREDENTIALS = False
 
 ROOT_URLCONF = 'config.urls'
 
@@ -149,6 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.environ.get('STATIC_ROOT', str(BASE_DIR / 'staticfiles'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

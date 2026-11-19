@@ -1,13 +1,22 @@
 import axios from "axios";
 
-// Use VITE_API_BASE_URL if set (empty string = relative URLs via Nginx/Vite proxy, same origin → no CORS).
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL !== undefined
-    ? import.meta.env.VITE_API_BASE_URL
-    : "";
+/**
+ * Centralized API client.
+ *
+ * `VITE_API_BASE_URL` is the ONLY configuration needed to move the frontend
+ * between deployments. Leave it empty for same-origin requests (Vite dev
+ * proxy or the bundled Nginx proxy). Set it to the public backend origin on
+ * Vercel, e.g. `https://api.example.com` — no trailing `/api`, no secrets.
+ */
+const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "")
+  .trim()
+  .replace(/\/+$/, "");
+
+export const API_BASE_URL = configuredBaseUrl;
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  // undefined keeps axios on relative URLs (same origin / proxy)
+  baseURL: API_BASE_URL || undefined,
   headers: {
     "Content-Type": "application/json",
   },

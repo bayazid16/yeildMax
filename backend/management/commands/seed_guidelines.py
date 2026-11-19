@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 obj.save()
                 self.stdout.write(self.style.WARNING(f"Updated guideline: {obj}"))
 
-        self.stdoutwrite(
+        self.stdout.write(
             self.style.SUCCESS(
                 f"Seeding completed: {created} created, {updated} updated"
             )
