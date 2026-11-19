@@ -2,13 +2,13 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
+from services.calculations import SUPPORTED_CROP_YIELDS
+
 from .models import Farmer, Farm
 
 
-# Add other officially supported crop codes here.
-VALID_CROP_CODES = {
-    "boro_rice",
-}
+# Keep serializer validation aligned with the crops the prediction engine supports.
+VALID_CROP_CODES = set(SUPPORTED_CROP_YIELDS)
 
 
 class FarmerSerializer(serializers.ModelSerializer):

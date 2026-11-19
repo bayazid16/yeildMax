@@ -1,10 +1,9 @@
-
 from django.urls import path
-from .views import health_check, farms_api, farmers_api, farm_detail
+from .views import HealthCheckView, FarmListView, FarmDetailView, FarmerCreateView
 
 urlpatterns = [
-    path("health/", health_check, name="health-check"),
-    path("farms/", farms_api, name="farms-api"),
-    path("farmers/", farmers_api, name="farmers-api"),
-    path("farms/<int:pk>/", farm_detail, name="farm-detail"),
+    path("health/", HealthCheckView.as_view(), name="health-check"),
+    path("farms/", FarmListView.as_view(), name="farms-api"),
+    path("farmers/", FarmerCreateView.as_view(), name="farmers-api"),
+    path("farms/<int:pk>/", FarmDetailView.as_view(), name="farm-detail"),
 ]

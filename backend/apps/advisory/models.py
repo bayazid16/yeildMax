@@ -9,10 +9,9 @@ class CropGuideline(models.Model):
     topic = models.CharField(max_length=100)
 
     stage = models.CharField(
-    max_length=20,
-    choices=CROP_STAGE_CHOICES,
-
-)
+        max_length=20,
+        choices=CROP_STAGE_CHOICES,
+    )
     start_day = models.IntegerField()
     end_day = models.IntegerField()
 

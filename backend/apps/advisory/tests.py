@@ -8,7 +8,7 @@ from apps.farms.models import Farmer, Farm
 from apps.predictions.models import Prediction
 
 from .models import ChatMessage
-from services.advisor import AdvisorServiceUnavailable
+from services.advisor_service import FALLBACK_MESSAGE
 
 
 class AdvisorChatAPITests(TestCase):
@@ -80,8 +80,12 @@ class AdvisorChatAPITests(TestCase):
         )
 
     @patch(
-        "apps.advisory.views.generate_advisor_response",
-        return_value="Apply fertilizer according to the crop stage.",
+        "apps.advisory.views.AdvisorServiceFacade.get_advice",
+        return_value={
+            "answer": "Apply fertilizer according to the crop stage.",
+            "is_fallback": False,
+            "reason": "SUCCESS",
+        },
     )
     def test_successful_chat_saves_messages(self, mock_advisor):
         Prediction.objects.create(
@@ -128,10 +132,16 @@ class AdvisorChatAPITests(TestCase):
         mock_advisor.assert_called_once()
 
     @patch(
-        "apps.advisory.views.generate_advisor_response",
-        side_effect=AdvisorServiceUnavailable,
+        "apps.advisory.views.AdvisorServiceFacade.get_advice",
+        return_value={
+            "answer": FALLBACK_MESSAGE,
+            "is_fallback": True,
+            "reason": "MISSING_API_KEY",
+        },
     )
-    def test_unavailable_advisor_returns_503(self, mock_advisor):
+    def test_fallback_advisor_response_is_returned_without_saving(
+        self, mock_advisor
+    ):
         Prediction.objects.create(
             farm=self.farm,
             market_price_bdt_per_kg=30,
@@ -148,15 +158,10 @@ class AdvisorChatAPITests(TestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, 503)
-        self.assertEqual(
-            response.data["code"],
-            "ADVISOR_SERVICE_UNAVAILABLE",
-        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["is_fallback"])
+        self.assertEqual(response.data["answer"], FALLBACK_MESSAGE)
+        self.assertEqual(response.data["reason"], "MISSING_API_KEY")
 
         mock_advisor.assert_called_once()
-
-        self.assertEqual(
-            ChatMessage.objects.count(),
-            0,
-        )
+        self.assertEqual(ChatMessage.objects.count(), 0)

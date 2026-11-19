@@ -23,12 +23,21 @@ load_dotenv(BASE_DIR.parent / ".env")
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+1pe*olh+ez8d*&(_z-$&$cn0m(d)5_u993tuz4mz_gwg%d0($'
+# Values are read from the environment so Docker/deployment platforms can
+# override them; the defaults preserve local development behaviour.
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    'django-insecure-+1pe*olh+ez8d*&(_z-(d)5_u993tuz4mz_gwg%d0($',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "1").strip().lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS", "*").split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -41,15 +50,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
- 'rest_framework',
-'corsheaders',
-'apps.farms',
-'apps.predictions',
-'apps.advisory',
+    'rest_framework',
+    'corsheaders',
+    'apps.farms',
+    'apps.predictions',
+    'apps.advisory',
+    # V2 apps
+    'apps.geo',
+    'apps.satellite',
+    'apps.weather',
+    'apps.soil',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be before CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,6 +72,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS settings - allow all origins in dev; tighten in prod
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'config.urls'
 
@@ -135,3 +154,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Redis / Celery (gracefully optional — Celery is not required to start)
+REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"

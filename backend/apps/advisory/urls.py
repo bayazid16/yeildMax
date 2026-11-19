@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import advisory_api, advisor_chat_api
+from .views import AdvisoryView, AdvisorChatView
 
 urlpatterns = [
-    path("advisory/<int:farm_id>/", advisory_api, name="advisory-api"),
-    path("advisor/chat/", advisor_chat_api, name="advisor-chat-api"),
+    path("advisory/<int:farm_id>/", AdvisoryView.as_view(), name="advisory-api"),
+    path("advisor/chat/", AdvisorChatView.as_view(), name="advisor-chat-api"),
 ]
