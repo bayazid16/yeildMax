@@ -1,7 +1,0 @@
-# Docker ignore for YieldMax Frontend
-# Exclude node_modules and logs, but always include public and src
-
-node_modules
-npm-debug.log
-yarn-error.log
-.pnpm-log

@@ -151,6 +151,11 @@ pnpm-debug.log*
 lerna-debug.log*
 *.local
 
+# Local backup / scratch copies (never push to GitHub)
+frontend_agent_backup/
+*_backup/
+*~backup*/
+
 # ------------------------------------------------------------
 # Docker / deployment artifacts
 # Dockerfile, docker/ and .dockerignore stay tracked.
